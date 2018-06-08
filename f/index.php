@@ -32,7 +32,7 @@
       }
       .container {
       text-align: center;
-      height: 50%!important;
+      height: 30%!important;
       max-width: 100%!important;
       display: flex;
       position: fixed;
@@ -52,6 +52,19 @@
         color: green;
         display: none;
       }
+      .col-md-12{
+        margin: 0 15px;
+        flex: inherit;
+      }
+      .small-txt{
+        font-size: 12px;
+      }
+      small{
+        font-family: 'Raleway', sans-serif;
+      }
+      input{
+        background: antiquewhite;
+      }
    </style>
    <body>
       <div class="container">
@@ -67,13 +80,13 @@
                <div class="col-md-12">
                   <form action="shortener.php" method="POST">
                      <div class="form-group">
-                        <span id="url-invalid">!!!! This URL can't be Iframe !!!!</span>
-                        <span id="url-valid">This URL can be Iframe</span>
-                        <small>Enter a URL</small>
+                        <small>Enter a URL you want to share</small>
+                        <span id="url-invalid" class="small-txt">(!!!! This URL can't be Iframe !!!!)</span>
+                        <span id="url-valid" class="small-txt">(This URL can be Iframe)</span>
                         <input id="url" name="url" class="form-control" type="text" placeholder="Enter URL" required/>
                      </div>
                      <div class="form-group">
-                        <small>Message</small>
+                        <small>Enter a Message or a Question</small>
                         <textarea id="message1" name="message1" class="form-control" placeholder="Type Message #1..." required></textarea>
                      </div>
                      <!-- <div class="form-group">
@@ -81,19 +94,19 @@
                         <textarea id="message2" name="message2" class="form-control" placeholder="Type Message #2..." required></textarea>
                      </div> -->
                      <div class="form-group">
-                        <small>Facebook Profile URL</small>
+                        <small>Enter your Facebook Profile URL</small>
                         <input id="facebook-url" name="facebook-url" class="form-control" type="text" placeholder="Your facebook profile URL" required/>
                      </div>
                      <div class="form-group">
-                        <small>CTA</small>
+                        <small>What is your Call-to-Action redirect?</small>
                         <input id="cta" name="cta" class="form-control" type="text" placeholder="Type CTA" required/>
-                        <small>https://www.linkedin.com/messaging/compose/?after=mynetwork.index&recipient={{linkedin-public-profile-id}}</small>
+                        <span class="small-txt">https://www.linkedin.com/messaging/compose/?after=mynetwork.index&recipient={{linkedin-public-profile-id}}</span>
                      </div>
                      <div class="form-group">
-                        <input type="text" name="iframe-type" id="iframe-type"/>                        
-                        <input type="text" name="iframe-content" id="iframe-content"/>
-                        <input type="text" name="encrypt-content" id="encrypt-content"/>
-                        <input type="submit" id="submit" class="btn btn-success" value="OK"/>
+                        <input type="hidden" name="iframe-type" id="iframe-type"/>                        
+                        <input type="hidden" name="iframe-content" id="iframe-content"/>
+                        <input type="hidden" name="encrypt-content" id="encrypt-content"/>
+                        <button type="submit" id="submit" class="btn btn-success" disabled>OK</button>
                      </div>
                   </form>
                </div>
@@ -170,12 +183,14 @@
       function url_valid(){
         $("#url-valid").show();
         $("#url-invalid").hide();
+        $("#submit").attr("disabled",false);
       }
 
       function url_invalid(){
         // ERROR
         $("#url-valid").hide();
         $("#url-invalid").show();
+        $("#submit").attr("disabled",true);
       }
 
       function add_http(url){
@@ -195,7 +210,7 @@
         var encrypt_iframe_type = $("#iframe-type").val();
 
         $("#iframe-content").val(iframe_content);
-        var encrypt_param = "url="+encrypt_url+"&message1="+encrypt_message1+"&facebook-url="+encrypt_facebook_url+"&cta="+encrypt_cta+"&iframe-type="+encrypt_iframe_type+"&iframe-content="+iframe_content;
+        var encrypt_param = "url="+encrypt_url+"&message1="+encodeURIComponent(encrypt_message1)+"&facebook-url="+encrypt_facebook_url+"&cta="+encrypt_cta+"&iframe-type="+encrypt_iframe_type+"&iframe-content="+iframe_content;
         console.log(encrypt_param);
 
         //Not Acceptable! An appropriate representation of the requested resource could not be found on this server. This error was generated by Mod_Security.
@@ -215,6 +230,7 @@
       }
 
       function validate_url(){
+        url_invalid();
         $("#iframe-type").val("");
         $("#iframe-content").val("");
 
@@ -231,6 +247,9 @@
             if(response == "true"){
               console.log('iframe_validator');
               url_valid();
+
+              encrypt_function();
+
             } else {
               
               // use AMP
@@ -261,11 +280,14 @@
                     ifrmelyRequest.done(function (response, textStatus, jqXHR){            
                       console.log(response);
 
-                      console.log('iframely');
-
-                      $("#iframe-type").val("iframely");
-                      encrypt_function(response.html);
-                      url_valid();
+                      if(response.html != null){
+                        console.log('iframely');
+                        $("#iframe-type").val("iframely");
+                        encrypt_function(response.html);
+                        url_valid();
+                      }else{
+                        url_invalid();
+                      }
 
                     }).fail(function(data){
                       url_invalid();
