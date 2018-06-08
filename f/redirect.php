@@ -36,11 +36,23 @@
 
         //print_r($current_param);
    			$_GET['url'] = urldecode($iframe_string_url[1]);
-   			$_GET["message1"] = urldecode($iframe_string_message1[1]);
+   			$_GET["message1"] = rawurldecode(urldecode($iframe_string_message1[1]));
    			$_GET['facebook-url'] = urldecode($iframe_string_facebook_url[1]);
    			$_GET["cta"] = urldecode($iframe_string_cta[1]);
    			$_GET['iframe-type'] = urldecode($iframe_string_type[1]);
    			$_GET['iframe-content'] = urldecode($iframe_string_content[1]);
+        // echo $_GET['url'];
+        // echo '<br>';
+        // echo $_GET['message1'];
+        // echo '<br>';
+        // echo $_GET['facebook-url'];
+        // echo '<br>';
+        // echo $_GET['cta'];
+        // echo '<br>';
+        // echo $_GET['iframe-type'];
+        // echo '<br>';
+        // echo $_GET['iframe-content'];
+        // echo '<br>';
 
    			
    		    
@@ -70,7 +82,7 @@
    		   
    			?>
 <!DOCTYPE>
-<html>
+<html id="core">
    <head>
       <!-- Hotjar Tracking Code for http://mycampfirechat.com/g/result.php -->
       <script>
@@ -131,6 +143,9 @@
          -webkit-overflow-scrolling: touch;
          overflow-y: scroll;
          } */
+         html#core{
+            overflow-y: hidden;
+         }
          #iframe iframe{
          height: calc(100% - 50px);
          /*position: relative;*/
@@ -151,31 +166,24 @@
    </head>
    <body>
       <?php                   
-         if($_GET['iframe-type'] == 'iframely'){ 
-           echo '<div class="iframely-content" style="width:75%;margin:0 auto">';
+       if($_GET['iframe-type'] == 'iframely'){ 
+         echo '<div class="iframely-content" style="width:75%;margin:0 auto">';
 
-           echo $_GET['iframe-content'];
-         
-           echo '</div>';
-         
-         } else if ($_GET['iframe-type'] == 'amp'){ ?>
+         echo $_GET['iframe-content'];
+       
+         echo '</div>';
+       
+       } else if ($_GET['iframe-type'] == 'amp'){ ?>
       <div class="scroll-wrapper">
          <div class="scroll-wrapper">
-            <iframe width="100%" height="100%" src="<?php echo urldecode($_GET['iframe-content']); ?>"/>
+            <iframe width="100%" height="100%" src="<?php echo $_GET['iframe-content']; ?>"></iframe>
          </div>
       </div>
-      <? } else if($_GET['iframe-type'] == 'amp'){ ?>       
-      <!-- <div class="scroll-wrapper">
-      <div id="iframe" style="border-bottom: 3px solid;">
-      <iframe width="100%" height="90%" scrolling="no" frameborder="0" src=""></iframe>
-      </div>
-      </div> -->
-      <?php
-         } else { ?>
+      <? } else { ?>
       <div class="scroll-wrapper">
          <div class="scroll-wrapper">
             <div id="iframe" style="border-bottom: 3px solid;">
-               <iframe width="100%" height="90%" scrolling="no" frameborder="0" src="<?php echo $_GET['url']; ?>"></iframe>
+               <!-- <iframe width="100%" height="90%" scrolling="no" frameborder="0" src=""></iframe> -->
             </div>
          </div>
       </div>
@@ -272,11 +280,11 @@
         //   $("#iframe iframe").attr({'src': url});
         // }    
         // TESTING IF IFRAME, ELSE REDIRECT
-        // if(canAccessIFrame(decodeURIComponent(url))){
+        if(canAccessIFrame(decodeURIComponent(url))){
       
-        // }else{
-        //   //window.location.replace(url);
-        // }
+        }else{
+          //window.location.replace(url);
+        }
       
       });
       
@@ -334,54 +342,54 @@
               // });
           });
       
-      // function canAccessIFrame(url) {
-      //     var iframeLoaded = false;
-      //     var iframe = document.createElement('iframe');
+      function canAccessIFrame(url) {
+          var iframeLoaded = false;
+          var iframe = document.createElement('iframe');
       
-      //     // ***** SWAP THE `iframe.src` VALUE BELOW FOR DIFFERENT RESULTS ***** //
-      //     // iframe.src = "https://jsfiddle.net/7qusz4q3/117/"; // This will work. There is no 'X-Frame-Options' header.
-      //     iframe.src = url; // This won't work. 'X-Frame-Options' is set to 'SAMEORIGIN'.
-      //     // iframe.id = 'theFrame';
+          // ***** SWAP THE `iframe.src` VALUE BELOW FOR DIFFERENT RESULTS ***** //
+          // iframe.src = "https://jsfiddle.net/7qusz4q3/117/"; // This will work. There is no 'X-Frame-Options' header.
+          iframe.src = url; // This won't work. 'X-Frame-Options' is set to 'SAMEORIGIN'.
+          // iframe.id = 'theFrame';
            
-      //     var iframeOnloadEvent = function () {
-      //       iframeLoaded = true;
-      //       var consoleDiv = document.getElementById('console');
-      //       if (iframe.contentWindow.length > 0) {
-      //         consoleDiv.innerHTML = '✔ Content window loaded: ' + iframe.src;
-      //         consoleDiv.style.cssText = 'color: green;'
-      //         // REMOVE TESTING
-      //         $('#theFrame').remove();
-      //       } else {
-      //         // REDIRECT
-      //         if(url.indexOf("ampproject") || url.indexOf("youtube.com/embed") !== -1 ){
+          var iframeOnloadEvent = function () {
+            iframeLoaded = true;
+            var consoleDiv = document.getElementById('console');
+            if (iframe.contentWindow.length > 0) {
+              consoleDiv.innerHTML = '✔ Content window loaded: ' + iframe.src;
+              consoleDiv.style.cssText = 'color: green;'
+              // REMOVE TESTING
+              $('#theFrame').remove();
+            } else {
+              // REDIRECT
+              if(url.indexOf("ampproject") || url.indexOf("youtube.com/embed") !== -1 ){
       
-      //         }else{
-      //           //window.location.replace(url);
-      //           consoleDiv.innerHTML = '✘ Content window failed to load: ' + iframe.src;
-      //           consoleDiv.style.cssText = 'color: red;'
-      //         }
+              }else{
+                //window.location.replace(url);
+                consoleDiv.innerHTML = '✘ Content window failed to load: ' + iframe.src;
+                consoleDiv.style.cssText = 'color: red;'
+              }
               
-      //       }
-      //     } 
+            }
+          } 
       
-      //     if (iframe.attachEvent){
-      //       iframe.attachEvent('onload', iframeOnloadEvent);
-      //     } else {
-      //       iframe.onload = iframeOnloadEvent;
-      //     }
-      //     $('#iframe').append(iframe);
+          if (iframe.attachEvent){
+            iframe.attachEvent('onload', iframeOnloadEvent);
+          } else {
+            iframe.onload = iframeOnloadEvent;
+          }
+          $('#iframe').append(iframe);
       
-      //     // iframe.onload event doesn't trigger in firefox if loading mixed content (http iframe in https parent) and it is blocked.
-      //     setTimeout(function () {
-      //       if (iframeLoaded === false) {
-      //         //window.location.replace(url);
-      //         consoleDiv.innerHTML = '✘ iframe failed to load within 5s: ' + iframe.src;
-      //         consoleDiv.style.cssText = 'color: red;'    
-      //       }
+          // iframe.onload event doesn't trigger in firefox if loading mixed content (http iframe in https parent) and it is blocked.
+          setTimeout(function () {
+            if (iframeLoaded === false) {
+              //window.location.replace(url);
+              consoleDiv.innerHTML = '✘ iframe failed to load within 5s: ' + iframe.src;
+              consoleDiv.style.cssText = 'color: red;'    
+            }
       
-      //       $('#theFrame').remove();
-      //     }, 5000);
-      // }
+            $('#theFrame').remove();
+          }, 5000);
+      }
    </script>
 </html>
 <?php
