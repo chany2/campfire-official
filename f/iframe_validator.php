@@ -15,6 +15,8 @@
         } else {
             echo "true";
         }
+    } elseif(empty($header)){
+        echo "false"; //no content
     } else {
         echo "true";
     }
